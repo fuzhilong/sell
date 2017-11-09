@@ -3,6 +3,7 @@ package com.fzl.sell.service.impl;
 import com.fzl.sell.bean.OrderDetail;
 import com.fzl.sell.bean.OrderMaster;
 import com.fzl.sell.bean.ProductInfo;
+import com.fzl.sell.converter.OrderMaster2OrderDTOConverter;
 import com.fzl.sell.dao.OrderDetailDao;
 import com.fzl.sell.dao.OrderMasterDao;
 import com.fzl.sell.dto.CartDTO;
@@ -17,9 +18,11 @@ import com.fzl.sell.utils.KeyUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -78,12 +81,30 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO findOne(String orderId) {
-        return null;
+        OrderMaster orderMaster=orderMasterDao.findOne(orderId);
+        if(orderMaster==null){
+            throw new SellException(ResultEnum.ORDER_NOT_EXIST);
+        }
+        List<OrderDetail> orderDetailList= orderDetailDao.findByOrderId(orderId);
+        if(CollectionUtils.isEmpty(orderDetailList)){
+            throw new SellException(ResultEnum.ORDERDETAIL_NOT_EXIST);
+
+        }
+
+        OrderDTO orderDTO=new OrderDTO();
+        BeanUtils.copyProperties(orderMaster,orderDTO);
+        orderDTO.setOrderDetailList(orderDetailList);
+        return orderDTO;
     }
 
     @Override
     public Page<OrderDTO> findList(String buyerOpenId, Pageable pageable) {
-        return null;
+        Page<OrderMaster> orderMasterPage= orderMasterDao.findByBuyerOpenid(buyerOpenId,pageable);
+       List<OrderDTO> orderDTOList= OrderMaster2OrderDTOConverter.convert(orderMasterPage.getContent());
+       Page<OrderDTO> orderDTOPage=new PageImpl<OrderDTO>(orderDTOList,pageable,
+               orderMasterPage.getTotalElements());
+
+        return orderDTOPage;
     }
 
     @Override
