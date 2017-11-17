@@ -2,6 +2,8 @@ package com.fzl.sell.service.impl;
 
 import com.fzl.sell.bean.OrderDetail;
 import com.fzl.sell.dto.OrderDTO;
+import com.fzl.sell.enums.OrderStatusEnum;
+import com.fzl.sell.enums.PayStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -69,14 +71,24 @@ public class OrderServiceImplTest {
 
     @Test
     public void cancel() throws Exception {
+        OrderDTO orderDTO= orderService.findOne(orderId);
+       OrderDTO result= orderService.cancel(orderDTO);
+       Assert.assertEquals(OrderStatusEnum.CANCEL.getCode(),result.getOrderStatus());
+
     }
 
     @Test
     public void finish() throws Exception {
+        OrderDTO orderDTO= orderService.findOne(orderId);
+        OrderDTO result= orderService.finish(orderDTO);
+        Assert.assertEquals(OrderStatusEnum.FINISHED.getCode(),result.getOrderStatus());
     }
 
     @Test
     public void paid() throws Exception {
+        OrderDTO orderDTO= orderService.findOne(orderId);
+        OrderDTO result= orderService.paid(orderDTO);
+        Assert.assertEquals(PayStatusEnum.SUCCESS.getCode(),result.getPayStatus());
     }
 
 }
