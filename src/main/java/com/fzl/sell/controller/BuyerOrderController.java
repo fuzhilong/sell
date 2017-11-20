@@ -5,6 +5,7 @@ import com.fzl.sell.dto.OrderDTO;
 import com.fzl.sell.enums.ResultEnum;
 import com.fzl.sell.exception.SellException;
 import com.fzl.sell.form.OrderForm;
+import com.fzl.sell.service.BuyerService;
 import com.fzl.sell.service.OrderService;
 import com.fzl.sell.utils.ResultVoUtils;
 import com.fzl.sell.vo.ResultVo;
@@ -15,10 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.print.attribute.standard.PageRanges;
 import javax.validation.Valid;
@@ -36,6 +34,8 @@ import java.util.Map;
 public class BuyerOrderController {
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private BuyerService buyerService;
     //创建订单
     @RequestMapping("/create")
     public ResultVo<Map<String,String>> create(@Valid OrderForm orderForm,BindingResult bindingResult){
@@ -72,6 +72,25 @@ public class BuyerOrderController {
         PageRequest request=new PageRequest(page,size);
         Page<OrderDTO> orderDTOPage=orderService.findList(openid,request);
         return ResultVoUtils.susscess(orderDTOPage.getContent());
+
+    }
+
+    //订单详情
+    @GetMapping("/detail")
+    public ResultVo<OrderDTO> detail(@RequestParam("openid") String openid,
+                                     @RequestParam("orderid") String orderid){
+
+        OrderDTO orderDTO= buyerService.findOrderOne(openid,orderid);
+        return ResultVoUtils.susscess(orderDTO);
+
+    }
+
+    //取消订单
+    @PostMapping("/cancel")
+    public ResultVo cancel(@RequestParam("openid") String openid,
+                                     @RequestParam("orderid") String orderid){
+        buyerService.cancelOrder(openid,orderid);
+        return ResultVoUtils.susscess();
 
     }
 

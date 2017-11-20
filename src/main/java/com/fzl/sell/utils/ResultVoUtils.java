@@ -15,7 +15,10 @@ public class ResultVoUtils {
         return resultVo;
     }
     public static ResultVo susscess(){
-        return null;
+        ResultVo resultVo=new ResultVo();
+        resultVo.setCode(0);
+        resultVo.setMsg("成功");
+        return resultVo;
     }
 
     public static ResultVo error(Integer code,String msg){
